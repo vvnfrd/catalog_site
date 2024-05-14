@@ -6,12 +6,14 @@
         <div class="col-6">
             <div class="row" method="post" enctype="multipart/form-data">
                 <div class="card-center">
-                    <p class="card-text">Вы действительно хотите удалить товар "{{ product.name|title }}"?</p>
                     <div class="card-body">
-                        {% csrf_token %}
+                        <form method="post">
+                            {% csrf_token %}
+                            <p>Вы действительно хотите удалить товар "{{ product.name|title }}"?</p>
+                            <button type="submit" class="btn btn-danger">Удалить</button>
+                            <a class="btn btn-success" href="{% url 'catalog:list' %}" role="button">Отменить</a>
+                        </form>
                     </div>
-                    <button type="submit" class="btn btn-danger">Удалить</button>
-                    <a class="btn btn-success" href="{% url 'catalog:list' %}" role="button">Отменить</a>
                 </div>
             </div>
         </div>

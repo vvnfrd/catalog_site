@@ -6,7 +6,7 @@ from django.views.generic.list import ListView
 
 class MaterialListView(ListView):
     model = Material
-    # fields = ('title', 'body', 'image', 'create_at')
+    fields = ('title', 'body', 'image', 'create_at')
     template_name = 'material_list.html'
 
 
