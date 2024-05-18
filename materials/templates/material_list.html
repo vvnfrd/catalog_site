@@ -1,0 +1,35 @@
+{% extends 'base.html'%}
+{% load my_tags %}
+{% block content %}
+<div class="album py-5 bg-body-tertiary">
+
+    <div class="container">
+      <p>
+          <a class="btn btn-primary" href="{% url 'materials:create' %}" role="button">Добавить блог</a>
+        </p>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for material in material_list %}
+        {% if material.publish %}
+        <div class="col">
+          <div class="card shadow-sm">
+            <img src="{{material.image | media_filter}}" alt="Фото">
+            <div class="card-body">
+              <p class="card-text">{{material.title|title}}</p>
+              <p class="card-text">Содержимое: {{material.body}}</p>
+              <p class="card-text">Дата создания: {{material.create_at}}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a class="btn btn-primary" href="{% url 'materials:info' material.pk %}" role="button">Подробнее</a>
+                  <a class="btn btn-success" href="{% url 'materials:update' material.pk %}" role="button">Редактировать</a>
+                  <a class="btn btn-danger" href="{% url 'materials:delete' material.pk %}" role="button">Удалить</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endblock %}

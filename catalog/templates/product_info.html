@@ -13,9 +13,10 @@
               <p class="card-text">Описание: {{product.description}}</p>
               <p class="card-text">Категория: {{product.category | title}}</p>
               <p class="card-text">Цена: {{product.price}} руб</p>
+              <p class="card-text">Кол-во просмотров: {{product.views_counter}}</p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <a class="btn btn-primary" href="{% url 'catalog:products' %}" role="button">Назад</a>
+                  <a class="btn btn-primary" href="{% url 'catalog:list' %}" role="button">Назад</a>
                 </div>
               </div>
             </div>

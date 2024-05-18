@@ -1,9 +1,7 @@
-import datetime
-
 from django.db import models
-from datetime import datetime
 
 NULLABLE = {'blank': True, 'null': True}
+
 
 class Category(models.Model):
     name = models.CharField(max_length=30, verbose_name='название категории')
@@ -16,6 +14,7 @@ class Category(models.Model):
         verbose_name = 'категория'
         verbose_name_plural = 'категории'
 
+
 class Product(models.Model):
     name = models.CharField(max_length=30, verbose_name='название продукта')
     description = models.TextField(max_length=250, verbose_name='описание продукта')
@@ -24,6 +23,8 @@ class Product(models.Model):
     price = models.IntegerField(verbose_name='цена продукта')
     create_at = models.DateField(auto_now_add=True, verbose_name='дата создания')
     update_at = models.DateField(auto_now=True, verbose_name='дата изменения')
+    views_counter = models.PositiveIntegerField(default=0, verbose_name='количество просмотров', help_text='укажите количество просмотров')
+    slug = models.CharField(default=str(name).lower().replace(' ', '-'), max_length=150, unique=True, verbose_name='slug name', **NULLABLE)
 
     def __str__(self):
         return f'{self.name}'
@@ -31,4 +32,3 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
-
