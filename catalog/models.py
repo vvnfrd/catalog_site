@@ -37,6 +37,7 @@ class Product(models.Model):
 class Version(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='продукт')
     number = models.CharField(max_length=50, verbose_name='номер версии')
+    name = models.CharField(max_length=50, verbose_name='название версии', **NULLABLE)
     current = models.BooleanField(default=True, verbose_name='признак актуальной версии')
 
     def __str__(self):
