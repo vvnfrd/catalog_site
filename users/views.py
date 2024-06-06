@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, View
 from django.core.mail import send_mail
-from users.forms import UserRegisterForm, UserProfileForm
+from users.forms import UserRegisterForm, UserProfileForm, UserPassRecoveryForm
 from users.models import User
 from config import settings
 import secrets
@@ -29,7 +29,6 @@ class RegisterView(CreateView):
         )
         return super().form_valid(form)
 
-
 def email_verification(request, token):
     user = get_object_or_404(User, token=token)
     user.is_active = True
@@ -45,3 +44,9 @@ class ProfileView(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
+
+class PassRecovery(UpdateView):
+    models = User
+    form_class = UserPassRecoveryForm
+    template_name = 'users/pass_recovery.html'
+    success_url = reverse_lazy('users:login')
