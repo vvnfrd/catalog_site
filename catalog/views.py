@@ -1,15 +1,17 @@
+from django.contrib.auth.decorators import permission_required
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from catalog.forms import ProductForm, VersionForm
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
 
-class ProductListView(ListView):
+class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Product
     template_name = 'product_list.html'
+    permission_required = 'catalog.view_product'
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -23,9 +25,10 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         return self.product
 
 
-class ProductCreateView(LoginRequiredMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.add_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_form.html'
 
@@ -39,9 +42,10 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(product)
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.change_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_form.html'
 
@@ -69,10 +73,14 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
             raise self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
+    # permission_required = 'catalog.delete_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_confirm_delete.html'
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 # def product_list(request):
 #     product_list = Product.objects.all()
