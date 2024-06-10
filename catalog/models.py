@@ -25,6 +25,7 @@ class Product(models.Model):
     update_at = models.DateField(auto_now=True, verbose_name='дата изменения')
     views_counter = models.PositiveIntegerField(default=0, verbose_name='количество просмотров', help_text='укажите количество просмотров')
     slug = models.CharField(default=str(name).lower().replace(' ', '-'), max_length=150, unique=True, verbose_name='slug name', **NULLABLE)
+    author = models.CharField(default='admin@gmail.com', max_length=40, verbose_name='опубликовал', **NULLABLE)
 
     def __str__(self):
         return f'{self.name}'
