@@ -44,9 +44,3 @@ class ProfileView(UpdateView):
 
     def get_object(self, queryset=None):
         return self.request.user
-
-class PassRecovery(UpdateView):
-    models = User
-    form_class = UserPassRecoveryForm
-    template_name = 'users/pass_recovery.html'
-    success_url = reverse_lazy('users:login')
