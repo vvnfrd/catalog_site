@@ -1,7 +1,7 @@
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from catalog.forms import ProductForm, VersionForm
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
@@ -12,7 +12,7 @@ class ProductListView(ListView):
     template_name = 'product_list.html'
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'product_info.html'
 
@@ -23,7 +23,7 @@ class ProductDetailView(DetailView):
         return self.product
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:list')
@@ -33,12 +33,13 @@ class ProductCreateView(CreateView):
         if product.is_valid():
             new_product = product.save()
             new_product.slug = new_product.name.lower().replace(' ', '-')
+            new_product.author = self.request.user.email
             new_product.save()
 
         return super().form_valid(product)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     success_url = reverse_lazy('catalog:list')
@@ -68,7 +69,7 @@ class ProductUpdateView(UpdateView):
             raise self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     model = Product
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_confirm_delete.html'
