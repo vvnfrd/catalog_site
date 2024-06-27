@@ -7,6 +7,8 @@ from users.models import User
 from config import settings
 import secrets
 
+from users.services import send_mail_for_registration
+
 
 class RegisterView(CreateView):
     model = User
@@ -20,13 +22,7 @@ class RegisterView(CreateView):
         user.token = token
         host = self.request.get_host()
         url = f'http://{host}/users/email-confirm/{token}'
-        send_mail(
-            'Подтверждение регистрации',
-            f'Для подтверждения регистрации перейдите по ссылке {url}',
-            settings.EMAIL_HOST_USER,
-            [user.email],
-            fail_silently=False,
-        )
+        send_mail_for_registration(user, url)
         return super().form_valid(form)
 
 def email_verification(request, token):

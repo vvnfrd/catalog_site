@@ -7,6 +7,8 @@ from catalog.forms import ProductForm, VersionForm
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
+from catalog.services import get_cached_categories_for_product
+
 
 class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Product
@@ -23,6 +25,11 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         self.product.views_counter += 1
         self.product.save()
         return self.product
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['categories'] = get_cached_categories_for_product(self.object.pk)
+        return context_data
 
 
 class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -82,15 +89,6 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return self.request.user.is_superuser
 
-# def product_list(request):
-#     product_list = Product.objects.all()
-#     context = {'product_list': product_list}
-#     return render(request, 'product_list.html', context)
-
-# def product_info(request, pk):
-#     product = Product.objects.get(pk=pk)
-#     context = {'product': product}
-#     return render(request, 'product_info.html', context)
 
 def is_this_owner(user):
     return user.groups.filter(name__in=['owner']).exists()
