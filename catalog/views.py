@@ -91,3 +91,6 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 #     product = Product.objects.get(pk=pk)
 #     context = {'product': product}
 #     return render(request, 'product_info.html', context)
+
+def is_this_owner(user):
+    return user.groups.filter(name__in=['owner']).exists()

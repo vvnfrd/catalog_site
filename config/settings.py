@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'catalog',
     'materials',
     'users',
+    'catalog.templatetags.is_this_owner'
 ]
 
 MIDDLEWARE = [
