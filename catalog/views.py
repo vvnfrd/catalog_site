@@ -3,7 +3,7 @@ from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from catalog.forms import ProductForm, VersionForm
+from catalog.forms import ProductForm, VersionForm, ProductFormForModerator
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
@@ -49,6 +49,13 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_form.html'
 
+    def get_form_class(self):
+        user = self.request.user
+        if user == self.object.author:
+            return ProductForm
+        elif user.groups.all()[0] == 'moderators':
+            self.form_class = ProductFormForModerator
+
     def get_success_url(self):
         return reverse('catalog:info', args=[self.kwargs.get('pk')])
 
@@ -73,6 +80,7 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
             raise self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
+
 class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
     # permission_required = 'catalog.delete_product'
@@ -82,15 +90,6 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         return self.request.user.is_superuser
 
-# def product_list(request):
-#     product_list = Product.objects.all()
-#     context = {'product_list': product_list}
-#     return render(request, 'product_list.html', context)
-
-# def product_info(request, pk):
-#     product = Product.objects.get(pk=pk)
-#     context = {'product': product}
-#     return render(request, 'product_info.html', context)
 
 def is_this_owner(user):
     return user.groups.filter(name__in=['owner']).exists()

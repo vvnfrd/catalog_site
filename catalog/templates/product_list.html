@@ -21,7 +21,7 @@
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
                   <a class="btn btn-primary" href="{% url 'catalog:info' product.pk %}" role="button">Подробнее</a>
-                  {% if user|user_filter %}
+                  {% if user.email == product.author or perms.catalog.change_category or perms.catalog.change_description or perms.catalog.set_published %}
                     <a class="btn btn-success" href="{% url 'catalog:update' product.pk %}" role="button">Редактировать</a>
                   {% endif %}
                   <a class="btn btn-danger" href="{% url 'catalog:delete' product.pk %}" role="button">Удалить</a>
