@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
@@ -8,7 +9,7 @@ from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
 
-class ProductListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+class ProductListView(ListView):
     model = Product
     template_name = 'product_list.html'
     permission_required = 'catalog.view_product'
@@ -51,10 +52,14 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
 
     def get_form_class(self):
         user = self.request.user
-        if user == self.object.author:
+        if user.email == self.object.author:
+            # print(user, self.object.name)
             return ProductForm
-        elif user.groups.all()[0] == 'moderators':
-            self.form_class = ProductFormForModerator
+        elif user.groups.filter(name='moderators').exists():
+            return ProductFormForModerator
+        else:
+            # print(user.email, self.object.author)
+            raise PermissionDenied()
 
     def get_success_url(self):
         return reverse('catalog:info', args=[self.kwargs.get('pk')])
@@ -78,7 +83,6 @@ class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
             return super().form_valid(form)
         else:
             raise self.render_to_response(self.get_context_data(form=form, formset=formset))
-
 
 
 class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

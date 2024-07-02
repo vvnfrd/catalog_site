@@ -20,7 +20,8 @@ class ProductForm(forms.ModelForm):
         fields = ('name', 'description', 'image', 'category', 'price')
 
 
-class ProductFormForModerator(ProductForm):
+class ProductFormForModerator(forms.ModelForm):
+
     class Meta:
         model = Product
         fields = ('is_published', 'description', 'category')
