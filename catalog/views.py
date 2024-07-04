@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy, reverse
 from django.views.generic import DetailView, CreateView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from catalog.forms import ProductForm, VersionForm
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from catalog.forms import ProductForm, VersionForm, ProductFormForModerator
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
@@ -10,6 +12,7 @@ from django.views.generic.list import ListView
 class ProductListView(ListView):
     model = Product
     template_name = 'product_list.html'
+    permission_required = 'catalog.view_product'
 
 
 class ProductDetailView(LoginRequiredMixin, DetailView):
@@ -23,9 +26,10 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         return self.product
 
 
-class ProductCreateView(LoginRequiredMixin, CreateView):
+class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.add_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_form.html'
 
@@ -39,11 +43,23 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(product)
 
 
-class ProductUpdateView(LoginRequiredMixin, UpdateView):
+class ProductUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
+    permission_required = 'catalog.change_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_form.html'
+
+    def get_form_class(self):
+        user = self.request.user
+        if user.email == self.object.author:
+            # print(user, self.object.name)
+            return ProductForm
+        elif user.groups.filter(name='moderators').exists():
+            return ProductFormForModerator
+        else:
+            # print(user.email, self.object.author)
+            raise PermissionDenied()
 
     def get_success_url(self):
         return reverse('catalog:info', args=[self.kwargs.get('pk')])
@@ -69,17 +85,15 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
             raise self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Product
+    # permission_required = 'catalog.delete_product'
     success_url = reverse_lazy('catalog:list')
     template_name = 'product_confirm_delete.html'
 
-# def product_list(request):
-#     product_list = Product.objects.all()
-#     context = {'product_list': product_list}
-#     return render(request, 'product_list.html', context)
+    def test_func(self):
+        return self.request.user.is_superuser
 
-# def product_info(request, pk):
-#     product = Product.objects.get(pk=pk)
-#     context = {'product': product}
-#     return render(request, 'product_info.html', context)
+
+def is_this_owner(user):
+    return user.groups.filter(name__in=['owner']).exists()

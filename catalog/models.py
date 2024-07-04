@@ -1,5 +1,6 @@
 from django.db import models
 
+
 NULLABLE = {'blank': True, 'null': True}
 
 
@@ -26,6 +27,7 @@ class Product(models.Model):
     views_counter = models.PositiveIntegerField(default=0, verbose_name='количество просмотров', help_text='укажите количество просмотров')
     slug = models.CharField(default=str(name).lower().replace(' ', '-'), max_length=150, unique=True, verbose_name='slug name', **NULLABLE)
     author = models.CharField(default='admin@gmail.com', max_length=40, verbose_name='опубликовал', **NULLABLE)
+    is_published = models.BooleanField(default=False, verbose_name='публикация')
 
     def __str__(self):
         return f'{self.name}'
@@ -33,6 +35,20 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'продукт'
         verbose_name_plural = 'продукты'
+        permissions = [
+            (
+                'set_published',
+                'Может активировать/деактивировать публикацию'
+            ),
+            (
+                'change_description',
+                'Может изменять описание продукта'
+            ),
+            (
+                'change_category',
+                'Может изменять категорию продукта'
+            ),
+        ]
 
 
 class Version(models.Model):

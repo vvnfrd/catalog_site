@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'catalog',
     'materials',
     'users',
+    'catalog.templatetags.is_this_owner'
 ]
 
 MIDDLEWARE = [
@@ -148,3 +149,4 @@ EMAIL_USE_SSL = False
 
 SERVER_EMAIL = EMAIL_HOST_USER
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+LOGIN_URL = '/users/'
