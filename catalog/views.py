@@ -8,6 +8,8 @@ from catalog.forms import ProductForm, VersionForm, ProductFormForModerator
 from catalog.models import Product, Version
 from django.views.generic.list import ListView
 
+from catalog.services import get_cached_categories_for_product
+
 
 class ProductListView(ListView):
     model = Product
@@ -24,6 +26,11 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
         self.product.views_counter += 1
         self.product.save()
         return self.product
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['categories'] = get_cached_categories_for_product(self.object.pk)
+        return context_data
 
 
 class ProductCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
