@@ -1,1 +1,1 @@
-Домашка по теме 'Работа с Django'
+Django practice "catalog site"
